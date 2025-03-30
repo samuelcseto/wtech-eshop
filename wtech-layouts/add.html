@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="sk">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pridanie Produktu - Domáce Dekorácie</title>
+		<!-- Bootstrap CSS -->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+		<!-- Custom CSS -->
+		<link href="styles.css" rel="stylesheet" />
+		<!-- Add product page specific styles -->
+		<style>
+			body {
+				background-color: #f9f9f9;
+			}
+			.add-product-container {
+				padding: 30px 0;
+			}
+			.add-product-title {
+				font-size: 28px;
+				font-weight: 500;
+				margin-bottom: 15px;
+			}
+			.back-link {
+				display: inline-block;
+				margin-bottom: 20px;
+				color: #555;
+				text-decoration: none;
+			}
+			.back-link:hover {
+				color: #333;
+				text-decoration: underline;
+			}
+			.image-upload-container {
+				display: flex;
+				margin-bottom: 30px;
+			}
+			.image-thumbnails {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				margin-right: 15px;
+			}
+			.image-thumbnail {
+				width: 80px;
+				height: 80px;
+				background-color: #e6e6e6;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				border: 1px solid #ddd;
+			}
+			.image-thumbnail img {
+				max-width: 100%;
+				max-height: 100%;
+			}
+			.image-thumbnail.active {
+				border: 2px solid #333;
+			}
+			.main-image-container {
+				width: 100%;
+				max-width: 320px;
+				height: 290px;
+				background-color: #e6e6e6;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border: 1px solid #ddd;
+			}
+			.main-image-container img {
+				max-width: 80px;
+				opacity: 0.5;
+			}
+			.image-upload-actions {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				margin-left: 15px;
+			}
+			.image-upload-btn {
+				background-color: #777;
+				color: white;
+				border: none;
+				padding: 10px 15px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+				font-size: 14px;
+				width: 100%;
+				text-align: left;
+			}
+			.image-upload-btn:hover {
+				background-color: #666;
+			}
+			.image-delete-btn {
+				background-color: #777;
+				color: white;
+				border: none;
+				padding: 10px 15px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+				font-size: 14px;
+				width: 100%;
+				text-align: left;
+			}
+			.image-delete-btn:hover {
+				background-color: #666;
+			}
+			.form-control {
+				padding: 10px 12px;
+				border-radius: 0;
+				border: 1px solid #ccc;
+				margin-bottom: 15px;
+			}
+			.form-label {
+				margin-bottom: 5px;
+				font-weight: 500;
+			}
+			.product-details-container {
+				margin-bottom: 30px;
+			}
+			.product-attribute {
+				display: flex;
+				border: 1px solid #ddd;
+				margin-bottom: 15px;
+			}
+			.product-attribute-label {
+				width: 140px;
+				padding: 12px 15px;
+				background-color: #f5f5f5;
+				border-right: 1px solid #ddd;
+				font-weight: 500;
+			}
+			.product-attribute-value {
+				flex-grow: 1;
+				padding: 12px 15px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.product-attribute-value .chevron {
+				color: #999;
+			}
+			.product-attribute-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 5px;
+			}
+			.product-tag {
+				background-color: #e9e9e9;
+				padding: 4px 10px;
+				font-size: 13px;
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				border-radius: 16px;
+				margin-bottom: 5px;
+			}
+			.product-tag .tag-remove {
+				cursor: pointer;
+				opacity: 0.7;
+				display: flex;
+				align-items: center;
+			}
+			.product-tag .tag-remove:hover {
+				opacity: 1;
+			}
+			.form-actions {
+				display: flex;
+				justify-content: flex-end;
+				gap: 15px;
+				margin-top: 40px;
+			}
+			.cancel-btn {
+				background-color: #ddd;
+				border: none;
+				padding: 12px 30px;
+				font-size: 16px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			.cancel-btn:hover {
+				background-color: #ccc;
+			}
+			.save-btn {
+				background-color: #777;
+				color: white;
+				border: none;
+				padding: 12px 30px;
+				font-size: 16px;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+			.save-btn:hover {
+				background-color: #666;
+			}
+
+			@media (max-width: 768px) {
+				.image-upload-container {
+					flex-direction: column;
+				}
+				.image-thumbnails {
+					flex-direction: row;
+					margin-right: 0;
+					margin-bottom: 15px;
+				}
+				.image-upload-actions {
+					margin-left: 0;
+					margin-top: 15px;
+				}
+				.main-image-container {
+					max-width: 100%;
+				}
+				.form-actions {
+					flex-direction: column;
+				}
+				.cancel-btn,
+				.save-btn {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Navigation -->
+		<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+			<div class="container">
+				<a class="navbar-brand" href="index.html">
+					<img src="images/logo.png" alt="Logo Domáce Dekorácie" />
+				</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link" href="#">Admin</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Produkty</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Objednávky</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Zákazníci</a>
+						</li>
+					</ul>
+					<ul class="navbar-nav ms-auto">
+						<li class="nav-item">
+							<a class="nav-link" href="#">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+									<path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z" />
+									<path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+								</svg>
+								Odhlásiť sa
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Add Product Section -->
+		<section class="add-product-container">
+			<div class="container">
+				<h1 class="add-product-title">Pridanie produktu</h1>
+				<a href="admin.html" class="back-link"> &lt; Naspäť do zoznamu produktov </a>
+
+				<form id="addProductForm">
+					<!-- Image Upload Section -->
+					<div class="image-upload-container">
+						<div class="image-thumbnails">
+							<div class="image-thumbnail">
+								<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#ccc" class="bi bi-image" viewBox="0 0 16 16">
+									<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+									<path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
+								</svg>
+							</div>
+							<div class="image-thumbnail">
+								<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#ccc" class="bi bi-plus-square-dotted" viewBox="0 0 16 16">
+									<path
+										d="M2.5 0c-.166 0-.33.016-.487.048l.194.98A1.51 1.51 0 0 1 2.5 1h.458V0H2.5zm2.292 0h-.917v1h.917V0zm1.833 0h-.917v1h.917V0zm1.833 0h-.916v1h.916V0zm1.834 0h-.917v1h.917V0zm1.833 0h-.917v1h.917V0zM13.5 0h-.458v1h.458c.1 0 .199.01.293.029l.194-.981A2.51 2.51 0 0 0 13.5 0zm2.079 1.11a2.511 2.511 0 0 0-.69-.689l-.556.831c.164.11.305.251.415.415l.83-.556zM1.11.421a2.511 2.511 0 0 0-.689.69l.831.556c.11-.164.251-.305.415-.415L1.11.422zM16 2.5c0-.166-.016-.33-.048-.487l-.98.194c.018.094.028.192.028.293v.458h1V2.5zM.048 2.013A2.51 2.51 0 0 0 0 2.5v.458h1V2.5c0-.1.01-.199.029-.293l-.981-.194zM0 3.875v.917h1v-.917H0zm16 .917v-.917h-1v.917h1zM0 5.708v.917h1v-.917H0zm16 .917v-.917h-1v.917h1zM0 7.542v.916h1v-.916H0zm15 .916h1v-.916h-1v.916zM0 9.375v.917h1v-.917H0zm16 .917v-.917h-1v.917h1zm-16 .916v.917h1v-.917H0zm16 .917v-.917h-1v.917h1zm-16 .917v.458c0 .166.016.33.048.487l.98-.194A1.51 1.51 0 0 1 1 13.5v-.458H0zm16 .458v-.458h-1v.458c0 .1-.01.199-.029.293l.981.194c.032-.158.048-.32.048-.487zM.421 14.89c.183.272.417.506.69.689l.556-.831a1.51 1.51 0 0 1-.415-.415l-.83.556zm14.469.689c.272-.183.506-.417.689-.69l-.831-.556c-.11.164-.251.305-.415.415l.556.83zm-12.877.373c.158.032.32.048.487.048h.458v-1H2.5c-.1 0-.199-.01-.293-.029l-.194.981zM13.5 16c.166 0 .33-.016.487-.048l-.194-.98A1.51 1.51 0 0 1 13.5 15h-.458v1h.458zm-9.625 0h.917v-1h-.917v1zm1.833 0h.917v-1h-.917v1zm1.834-1v1h.916v-1h-.916zm1.833 1h.917v-1h-.917v1zm1.833 0h.917v-1h-.917v1zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"
+									/>
+								</svg>
+							</div>
+						</div>
+
+						<div class="main-image-container">
+							<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="#ccc" class="bi bi-image" viewBox="0 0 16 16">
+								<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+								<path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
+							</svg>
+						</div>
+
+						<div class="image-upload-actions">
+							<button type="button" class="image-upload-btn">Pridať obrázok</button>
+							<button type="button" class="image-delete-btn">Zmazať tento obrázok</button>
+						</div>
+					</div>
+
+					<!-- Product Details Section -->
+					<div class="product-details-container">
+						<div class="mb-3">
+							<input type="text" class="form-control" id="productName" placeholder="Názov produktu" required />
+						</div>
+
+						<div class="mb-3">
+							<input type="text" class="form-control" id="productShortDescription" placeholder="Krátky popis" required />
+						</div>
+
+						<div class="mb-3">
+							<textarea class="form-control" id="productDescription" rows="5" placeholder="Dlhý popis produktu"></textarea>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<input type="text" class="form-control" id="productMaterials" placeholder="Materiály" />
+							</div>
+							<div class="col-md-6">
+								<input type="text" class="form-control" id="productDetails" placeholder="Detaily" />
+							</div>
+						</div>
+
+						<div class="mb-3">
+							<div class="row">
+								<div class="col-md-6">
+									<input type="number" class="form-control" id="productPrice" placeholder="Cena v €" required />
+								</div>
+								<div class="col-md-6">
+									<input type="number" class="form-control" id="productStock" placeholder="Počet kusov na sklade" />
+								</div>
+							</div>
+						</div>
+
+						<div class="product-attribute">
+							<div class="product-attribute-label">Farba</div>
+							<div class="product-attribute-value">
+								<select class="form-select border-0" id="productColor">
+									<option value="" selected disabled>Vyberte farbu</option>
+									<option value="červená">Červená</option>
+									<option value="biela">Biela</option>
+									<option value="čierna">Čierna</option>
+									<option value="sivá">Sivá</option>
+									<option value="modrá">Modrá</option>
+									<option value="zelená">Zelená</option>
+									<option value="hnedá">Hnedá</option>
+									<option value="béžová">Béžová</option>
+									<option value="drevená">Drevená</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="product-attribute">
+							<div class="product-attribute-label">Rozmery</div>
+							<div class="product-attribute-value">
+								<input type="text" class="form-control border-0" id="productDimensions" placeholder="šírka×výška×hĺbka" pattern="[0-9]+×[0-9]+×[0-9]+" title="Formát: šírka×výška×hĺbka (použite znak × medzi číslami)" />
+							</div>
+						</div>
+
+						<div class="product-attribute">
+							<div class="product-attribute-label">Kategórie</div>
+							<div class="product-attribute-value">
+								<div class="d-flex flex-column w-100">
+									<div class="product-attribute-tags mb-2">
+										<!-- Tags will be added here by the user -->
+									</div>
+									<input type="text" class="form-control border-0 p-0" id="categoryInput" placeholder="Zadajte kategóriu a stlačte Enter" />
+									<input type="hidden" id="categoriesValue" name="categories" value="" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Form Actions -->
+					<div class="form-actions">
+						<button type="button" class="cancel-btn" onclick="window.location.href='admin.html'">Zrušiť</button>
+						<button type="submit" class="save-btn" onclick="window.location.href='admin.html'">Pridať produkt</button>
+					</div>
+				</form>
+			</div>
+		</section>
+
+		<!-- Bootstrap JS -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+		<!-- Custom JS -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				// Handle thumbnail clicks
+				const thumbnails = document.querySelectorAll('.image-thumbnail')
+				thumbnails.forEach(function (thumbnail) {
+					thumbnail.addEventListener('click', function () {
+						// Remove active class from all thumbnails
+						thumbnails.forEach((t) => t.classList.remove('active'))
+
+						// Add active class to clicked thumbnail
+						this.classList.add('active')
+
+						// In a real implementation, we would update the main image here
+					})
+				})
+
+				// Setup input mask for dimensions
+				const dimensionsInput = document.getElementById('productDimensions')
+
+				// Key event to handle space conversion to × in real-time
+				dimensionsInput.addEventListener('keydown', function (e) {
+					// If space is pressed, replace with ×
+					if (e.key === ' ') {
+						e.preventDefault()
+						const start = this.selectionStart
+						const end = this.selectionEnd
+						const value = this.value
+						this.value = value.substring(0, start) + '×' + value.substring(end)
+
+						// Set cursor position after the inserted character
+						this.selectionStart = this.selectionEnd = start + 1
+					}
+				})
+
+				// Input event to handle general formatting
+				dimensionsInput.addEventListener('input', function (e) {
+					let value = e.target.value
+
+					// Replace spaces with × (for pasted content)
+					value = value.replace(/ /g, '×')
+
+					// Remove any characters that aren't digits or ×
+					value = value.replace(/[^\d×]/g, '')
+
+					// Make sure we have at most two × characters
+					const parts = value.split('×')
+					if (parts.length > 3) {
+						value = parts.slice(0, 3).join('×')
+					}
+
+					e.target.value = value
+				})
+
+				// Handle form submission
+				const addProductForm = document.getElementById('addProductForm')
+				addProductForm.addEventListener('submit', function (e) {
+					e.preventDefault()
+					// In a real implementation, we would process the form data here
+					alert('Produkt bol úspešne pridaný!')
+					window.location.href = 'admin.html'
+				})
+
+				// Handle category input
+				const categoryInput = document.getElementById('categoryInput')
+				const categoriesContainer = document.querySelector('.product-attribute-tags')
+				const categoriesValue = document.getElementById('categoriesValue')
+
+				// Function to update hidden field with current categories
+				function updateCategoriesValue() {
+					const tags = document.querySelectorAll('.product-tag')
+					const categories = Array.from(tags).map((tag) => tag.textContent.trim())
+					categoriesValue.value = categories.join(',')
+				}
+
+				// Function to add a new category pill
+				function addCategory(categoryName) {
+					if (!categoryName) return
+
+					// Check if category already exists
+					const existingCategories = document.querySelectorAll('.product-tag')
+					for (const category of existingCategories) {
+						if (category.textContent.trim() === categoryName) {
+							return // Skip duplicates
+						}
+					}
+
+					// Create new tag element
+					const newTag = document.createElement('div')
+					newTag.className = 'product-tag'
+					newTag.innerHTML = `
+						${categoryName}
+						<span class="tag-remove">
+							<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+								<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+							</svg>
+						</span>
+					`
+
+					// Add event listener to remove button
+					newTag.querySelector('.tag-remove').addEventListener('click', function () {
+						newTag.remove()
+						updateCategoriesValue()
+					})
+
+					// Add to container
+					categoriesContainer.appendChild(newTag)
+					updateCategoriesValue()
+				}
+
+				// Add category when Enter is pressed
+				categoryInput.addEventListener('keydown', function (e) {
+					if (e.key === 'Enter') {
+						e.preventDefault()
+						const value = this.value.trim()
+						if (value) {
+							addCategory(value)
+							this.value = ''
+						}
+					}
+				})
+
+				// Initialize tag remove functionality for existing tags
+				document.querySelectorAll('.tag-remove').forEach(function (button) {
+					button.addEventListener('click', function () {
+						this.closest('.product-tag').remove()
+						updateCategoriesValue()
+					})
+				})
+			})
+		</script>
+	</body>
+</html>

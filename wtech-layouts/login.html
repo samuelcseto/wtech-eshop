@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="sk">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Prihlásenie - Domáce Dekorácie</title>
+		<!-- Bootstrap CSS -->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+		<!-- Custom CSS -->
+		<link href="styles.css" rel="stylesheet" />
+		<!-- Login page specific styles -->
+		<style>
+			.login-page-container {
+				display: flex;
+				min-height: calc(100vh - 300px);
+			}
+			.login-page-image {
+				flex: 1;
+				background-color: #e6e6e6;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.login-page-form-container {
+				flex: 1;
+				padding: 50px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
+			.login-page-title {
+				font-size: 32px;
+				margin-bottom: 30px;
+			}
+			.login-page-input {
+				height: 50px;
+				margin-bottom: 20px;
+			}
+			.login-page-button {
+				height: 50px;
+				background-color: #aaaaaa;
+				border: none;
+				color: white;
+				font-weight: 500;
+			}
+			.login-page-button:hover {
+				background-color: #999999;
+				color: white;
+			}
+			.login-page-register-link {
+				text-align: center;
+				margin-top: 20px;
+			}
+			.login-page-register-link a {
+				color: #333;
+				text-decoration: none;
+				font-weight: 500;
+			}
+			.login-page-register-link a:hover {
+				text-decoration: underline;
+			}
+
+			/* Responsive styles */
+			@media (max-width: 991px) {
+				.login-page-container {
+					flex-direction: column;
+				}
+				.login-page-image {
+					min-height: 200px;
+				}
+				.login-page-form-container {
+					padding: 30px 20px;
+				}
+				.login-page-title {
+					font-size: 28px;
+					text-align: center;
+				}
+			}
+
+			@media (max-width: 575px) {
+				.login-page-form-container {
+					padding: 20px 15px;
+				}
+				.login-page-input {
+					height: 45px;
+					margin-bottom: 15px;
+				}
+				.login-page-title {
+					font-size: 24px;
+					margin-bottom: 20px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Navigation -->
+		<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+			<div class="container">
+				<a class="navbar-brand" href="index.html">
+					<img src="images/logo.png" alt="Logo Domáce Dekorácie" />
+				</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link" href="#">Katalóg</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Výpredaj</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Služby</a>
+						</li>
+					</ul>
+					<form class="d-flex ms-auto">
+						<div class="input-group">
+							<input class="form-control" type="search" placeholder="Hľadať" aria-label="Hľadať" />
+							<button class="btn btn-outline-secondary" type="submit">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+									<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+								</svg>
+							</button>
+						</div>
+					</form>
+					<ul class="navbar-nav ms-3">
+						<li class="nav-item user-container" id="userContainer">
+							<a class="nav-link" href="login.html">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+									<path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+								</svg>
+							</a>
+							<!-- User Dropdown Menu -->
+							<div class="user-menu" id="userMenu">
+								<div class="user-menu-item">
+									<a href="#profil" class="d-flex align-items-center text-decoration-none">
+										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person me-3" viewBox="0 0 16 16">
+											<path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+										</svg>
+										<span>Môj profil</span>
+									</a>
+								</div>
+								<div class="user-menu-item">
+									<a href="#objednavky" class="d-flex align-items-center text-decoration-none">
+										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list me-3" viewBox="0 0 16 16">
+											<path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+										</svg>
+										<span>Objednávky</span>
+									</a>
+								</div>
+								<div class="user-menu-item">
+									<a href="#odhlasit" class="d-flex align-items-center text-decoration-none">
+										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right me-3" viewBox="0 0 16 16">
+											<path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z" />
+											<path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+										</svg>
+										<span>Odhlásiť sa</span>
+									</a>
+								</div>
+							</div>
+						</li>
+						<li class="nav-item cart-container" id="cartContainer">
+							<a class="nav-link" href="#">
+								<div class="cart-icon">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+										<path
+											d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+										/></svg
+									><span class="cart-count">3</span>
+								</div>
+							</a>
+
+							<!-- Shopping Cart Preview -->
+							<div class="cart-preview" id="cartPreview">
+								<!-- Cart items -->
+								<!-- ... Cart items would go here ... -->
+
+								<div class="cart-total">
+									<span>Medzisúčet:</span>
+									<span>321,00 €</span>
+								</div>
+
+								<a href="#" class="cart-checkout">Pokračovať</a>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Login Section -->
+		<section class="login-page-container">
+			<div class="login-page-image">
+				<!-- Placeholder image icon in the center -->
+				<img style="width: 100%; height: 100%; filter: blur(5px)" src="https://s41585.pcdn.co/wp-content/themes/nice-north-america/assets/img/module-smart-home-montage-1-alt.jpg" alt="" />
+			</div>
+			<div class="login-page-form-container">
+				<h1 class="login-page-title">Prihlásenie</h1>
+
+				<form>
+					<div class="mb-3">
+						<input type="email" class="form-control login-page-input" id="email" placeholder="E-mail" required />
+					</div>
+					<div class="mb-3">
+						<input type="password" class="form-control login-page-input" id="password" placeholder="Heslo" required />
+					</div>
+					<button type="submit" class="btn login-page-button w-100">Prihlásiť sa</button>
+				</form>
+
+				<div class="login-page-register-link">
+					<span>Nemáte účet? <a href="register.html">Vytvorte si</a></span>
+				</div>
+			</div>
+		</section>
+
+		<!-- Footer -->
+		<footer class="footer-section">
+			<div class="container">
+				<div class="row">
+					<!-- Main Links -->
+					<div class="col-md-3">
+						<div class="footer-links">
+							<h6>Hlavné</h6>
+							<ul class="list-unstyled">
+								<li><a href="#" class="text-decoration-none text-dark">Katalóg</a></li>
+								<li><a href="#" class="text-decoration-none text-dark">Materiály</a></li>
+								<li><a href="#" class="text-decoration-none text-dark">Doručenie</a></li>
+								<li><a href="#" class="text-decoration-none text-dark">Predajňa</a></li>
+							</ul>
+						</div>
+					</div>
+					<!-- Support Links -->
+					<div class="col-md-3">
+						<div class="footer-links">
+							<h6>Podpora</h6>
+							<ul class="list-unstyled">
+								<li><a href="#" class="text-decoration-none text-dark">Otázky zákazníkov</a></li>
+								<li><a href="#" class="text-decoration-none text-dark">Často kladené otázky</a></li>
+							</ul>
+						</div>
+					</div>
+					<!-- Contact Links -->
+					<div class="col-md-3">
+						<div class="footer-links">
+							<h6>Kontakt</h6>
+							<ul class="list-unstyled">
+								<li><a href="#" class="text-decoration-none text-dark">Napíšte nám</a></li>
+								<li><a href="#" class="text-decoration-none text-dark">Kontakt</a></li>
+							</ul>
+						</div>
+					</div>
+					<!-- Newsletter -->
+					<div class="col-md-3">
+						<div class="newsletter">
+							<h6>Získajte najnovšie aktualizácie a akcie</h6>
+							<div class="input-group mb-3 mt-3">
+								<input type="email" class="form-control" placeholder="Váš email" />
+								<button class="btn btn-outline-secondary" type="button">Prihlásiť sa</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+		<!-- Bootstrap JS Bundle with Popper -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+		<!-- Custom JavaScript -->
+		<script src="script.js"></script>
+	</body>
+</html>
