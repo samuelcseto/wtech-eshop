@@ -3,7 +3,8 @@
 @section('title', 'Domov')
 
 @section('content')
-    <section class="bg-secondary text-white text-start py-5 px-4">
+    <section class="bg-secondary text-white text-start py-5 px-4"
+            style="background-image: url('{{ asset('images/banners/landing-banner.jpg') }}'); background-size: cover; background-position: center;">
         <div class="container">
             <h1>Lorem ipsum dolor</h1>
             <p>Lorem ipsum dolor</p>
@@ -15,11 +16,7 @@
         <div class="container">
             <h2 class="mb-4">Classics</h2>
             <div class="row g-4">
-                @foreach ([
-                    ['title' => 'Stolička klasická', 'price' => '39 €'],
-                    ['title' => 'Svetlo klasické', 'price' => '109 €'],
-                    ['title' => 'Taniere klasické', 'price' => '7,99 €'],
-                ] as $product)
+                @foreach ($products as $product)
                     <div class="col-md-4">
                         <div class="card text-center h-100">
                             <img src="https://via.placeholder.com/300x180" class="card-img-top" alt="product">
