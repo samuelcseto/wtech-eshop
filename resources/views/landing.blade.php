@@ -19,11 +19,20 @@
                 @foreach ($products as $product)
                     <div class="col-md-4">
                         <div class="card text-center h-100">
-                            <img src="https://via.placeholder.com/300x180" class="card-img-top" alt="product">
+                        <img 
+                            src="{{ 
+                                    $product->primaryImage?->image_url
+                                    ? asset($product->primaryImage->image_url)
+                                    : 'https://via.placeholder.com/300x180' 
+                                }}"
+                                class="card-img-top"
+                                alt="product"
+                                
+                            >
                             <div class="card-body">
-                                <h5 class="card-title">{{ $product['title'] }}</h5>
-                                <p class="card-text">Najlepšie materiály</p>
-                                <strong class="text-dark">{{ $product['price'] }}</strong>
+                                <h5 class="card-title">{{ $product->name }}</h5>
+                                <p class="card-text">{{ $product->description }}</p>
+                                <strong class="text-dark">{{ $product->price }}€</strong>
                             </div>
                         </div>
                     </div>
@@ -36,12 +45,20 @@
         <div class="container">
             <h2 class="mb-4">Podľa kategórie</h2>
             <div class="row g-4">
-                @foreach (['Spálňa', 'Kuchyňa', 'Kancelária', 'Detská'] as $category)
+                @foreach ($categories as $category)
                     <div class="col-md-3">
                         <div class="card text-center">
-                            <img src="https://via.placeholder.com/300x180" class="card-img-top" alt="category">
+                            <img 
+                                src="{{ 
+                                    $category->image_url
+                                    ? asset($category->image_url)
+                                    : 'https://via.placeholder.com/300x180' 
+                                }}"
+                                class="card-img-top" 
+                                alt="{{$category->name}}"
+                            >
                             <div class="card-body">
-                                <p class="card-text">{{ $category }}</p>
+                                <p class="card-text">{{ $category->name }}</p>
                             </div>
                         </div>
                     </div>
