@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,15 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        // Store the session ID before authentication
+        $sessionId = session()->getId();
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            // Merge guest cart with user cart
+            $cartController = new CartController();
+            $cartController->mergeCart($sessionId, Auth::id());
 
             return redirect()->intended('/');
         }

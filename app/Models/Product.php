@@ -13,7 +13,7 @@ class Product extends Model
         'name', 'description', 'price', 'stock_quantity', 'is_active', 'image'
     ];
     protected $table = 'products';
-    //protected $primaryKey = 'product_id';
+    protected $primaryKey = 'product_id';
 
     public function categories()
     {
@@ -22,11 +22,11 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ProductImage::class, 'product_id', 'product_id');
+        return $this->hasMany(ProductImage::class, 'product_id');
     }
 
     public function primaryImage()
     {
-        return $this->hasOne(ProductImage::class, 'product_id', 'product_id')->where('is_primary', true);
+        return $this->hasOne(ProductImage::class, 'product_id')->where('is_primary', true);
     }
 }

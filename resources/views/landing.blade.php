@@ -54,7 +54,7 @@
             <div class="row mt-3">
                 @foreach ($categories as $index => $category)
                     <div class="col-md-6 col-lg-{{ $index % 2 == 0 ? '4' : '8' }}">
-                        <a href="{{ route('categories.show', $category) }}" class="text-decoration-none">
+                        <a href="{{ route('products.index', ['category' => $category->category_id]) }}" class="text-decoration-none">
                             <div class="category-card">
                                 <div class="placeholder-img" style="height: 300px">
                                     <img 
@@ -298,37 +298,5 @@
 @endsection
 
 @section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // User dropdown toggle
-    const userContainer = document.getElementById('userContainer');
-    const userMenu = document.getElementById('userMenu');
-    
-    if (userContainer && userMenu) {
-        userContainer.addEventListener('click', function(e) {
-            e.stopPropagation();
-            userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
-        });
-    }
-    
-    // Cart preview toggle
-    const cartContainer = document.getElementById('cartContainer');
-    const cartPreview = document.getElementById('cartPreview');
-    
-    if (cartContainer && cartPreview) {
-        cartContainer.addEventListener('mouseover', function() {
-            cartPreview.style.display = 'block';
-        });
-        
-        cartContainer.addEventListener('mouseleave', function() {
-            cartPreview.style.display = 'none';
-        });
-    }
-    
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (userMenu) userMenu.style.display = 'none';
-    });
-});
-</script>
+<!-- No need for dropdown menu JavaScript here anymore as it's now in the main layout -->
 @endsection

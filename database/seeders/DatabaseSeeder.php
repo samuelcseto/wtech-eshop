@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            CountryAndShippingProviderSeeder::class, // Add countries and shipping providers first
             CategorySeeder::class,
             ProductSeeder::class,
             ProductCategorySeeder::class,
@@ -18,7 +19,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'test@example.com',
         ]);
     }

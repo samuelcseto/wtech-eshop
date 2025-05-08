@@ -9,7 +9,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Katalóg</a>
+                    <a class="nav-link" href="{{ route('products.index') }}">Katalóg</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Výpredaj</a>
@@ -47,7 +47,7 @@
                             <small class="d-block text-muted">{{ auth()->user()->email }}</small>
                         </div>
                         <div class="user-menu-item">
-                            <a href="#" class="d-flex align-items-center text-decoration-none">
+                            <a href="{{ route('profile.show') }}" class="d-flex align-items-center text-decoration-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person me-3" viewBox="0 0 16 16">
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
                                 </svg>
@@ -101,7 +101,7 @@
                     @endif
                 </li>
                 <li class="nav-item cart-container" id="cartContainer">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ route('cart.show') }}">
                         <div class="cart-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
                                 <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
@@ -113,14 +113,15 @@
                     <div class="cart-preview" id="cartPreview">
                         @if(isset($cart_items) && count($cart_items) > 0)
                             @foreach($cart_items as $item)
-                                <div class="cart-preview-item">
+                                <div class="cart-preview-item" data-item-id="{{ $item->cart_item_id }}">
                                     <div class="d-flex">
                                         <div class="item-image">
                                             <img src="{{ $item->product->primaryImage?->image_url ? asset($item->product->primaryImage->image_url) : 'https://via.placeholder.com/100' }}" alt="{{ $item->product->name }}" />
                                         </div>
-                                        <div>
+                                        <div class="flex-grow-1 me-2">
                                             <h6 class="mb-0">{{ $item->product->name }}</h6>
                                             <small class="text-muted">{{ $item->variant_details ?? '' }}</small>
+                                            <p class="mb-0 small item-description">{{ \Illuminate\Support\Str::limit($item->product->description, 60) }}</p>
                                         </div>
                                         <span class="item-remove">×</span>
                                     </div>
@@ -130,15 +131,18 @@
                                             <input type="text" class="quantity-input" value="{{ $item->quantity }}" readonly />
                                             <button class="quantity-btn">+</button>
                                         </div>
-                                        <div class="fw-bold">{{ number_format($item->price, 2, ',', ' ') }} €</div>
+                                        <div class="price-details text-end">
+                                            <div class="small text-muted">{{ number_format($item->price, 2, ',', ' ') }} € / ks</div>
+                                            <div class="fw-bold">{{ number_format($item->price * $item->quantity, 2, ',', ' ') }} €</div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
-                            <div class="cart-total">
+                            <div class="cart-total mt-2 d-flex justify-content-between border-top pt-2">
                                 <span>Medzisúčet:</span>
                                 <span>{{ number_format($cart_total, 2, ',', ' ') }} €</span>
                             </div>
-                            <a href="#" class="cart-checkout">Pokračovať</a>
+                            <a href="{{ route('cart.show') }}" class="cart-checkout">Pokračovať</a>
                         @else
                             <div class="cart-empty">
                                 <p>Váš košík je prázdny</p>
@@ -154,5 +158,92 @@
 <style>
 .user-menu-header {
     background-color: #f8f9fa;
+}
+
+/* Cart preview styles */
+.cart-preview {
+    width: 350px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.cart-preview-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.item-image img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.item-description {
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+.item-remove {
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #999;
+    padding: 0 8px;
+}
+
+.item-remove:hover {
+    color: #dc3545;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    font-weight: bold;
+}
+
+.quantity-input {
+    width: 32px;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: 0 4px;
+}
+
+.price-details {
+    min-width: 80px;
+}
+
+.cart-total {
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.cart-checkout {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.cart-checkout:hover {
+    background-color: #45a049;
+    color: white;
 }
 </style>

@@ -21,6 +21,7 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'phone',
         'password',
     ];
 
@@ -55,5 +56,46 @@ class User extends Authenticatable
     public function getNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+    
+    /**
+     * Get the user's addresses.
+     */
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+    
+    /**
+     * Get the user's default address.
+     */
+    public function defaultAddress()
+    {
+        return $this->hasMany(UserAddress::class)->where('is_default', true)->first();
+    }
+    
+    /**
+     * Get the user's address (maintained for backward compatibility).
+     * @deprecated Use defaultAddress() or addresses() instead.
+     */
+    public function address()
+    {
+        return $this->hasOne(UserAddress::class);
+    }
+
+    /**
+     * Get the user's cart.
+     */
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+    
+    /**
+     * Get the user's active cart.
+     */
+    public function activeCart()
+    {
+        return $this->hasOne(Cart::class)->latest();
     }
 }
