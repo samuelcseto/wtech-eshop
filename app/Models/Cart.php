@@ -14,6 +14,31 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'session_id',
+        // Contact information
+        'email',
+        'phone',
+        'newsletter',
+        // Shipping address
+        'first_name',
+        'last_name',
+        'address_line1',
+        'address_line2',
+        'city',
+        'postal_code',
+        'country',
+        // Shipping method
+        'shipping_provider_id',
+        // Payment method
+        'payment_method',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'newsletter' => 'boolean',
     ];
 
     /**
@@ -30,6 +55,14 @@ class Cart extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the shipping provider for this cart.
+     */
+    public function shippingProvider()
+    {
+        return $this->belongsTo(ShippingProvider::class, 'shipping_provider_id', 'provider_id');
     }
 
     /**

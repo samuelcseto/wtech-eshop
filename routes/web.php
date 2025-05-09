@@ -9,7 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PageController::class, 'index']);
+Route::get('/', [PageController::class, 'index'])->name('home');
 
 // Product routes
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -25,6 +25,10 @@ Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+Route::post('/cart/store-checkout', [CartController::class, 'storeCheckout'])->name('cart.storeCheckout');
+Route::get('/cart/payment', [CartController::class, 'payment'])->name('cart.payment');
+Route::post('/cart/process-payment', [CartController::class, 'processPayment'])->name('cart.processPayment');
+Route::get('/cart/success', [CartController::class, 'success'])->name('cart.success');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {

@@ -31,147 +31,158 @@
                     <span>Nákupný košík</span>
                 </a>
 
-                <!-- Contact Information Section -->
-                <div class="checkout-form-section">
-                    @if(!Auth::check())
-                        <div class="checkout-account-options">
-                            <span>Máte účet?</span>
-                            <a href="{{ route('login') }}">Prihlásiť sa</a>
-                        </div>
-                    @endif
+                <form id="checkoutForm" class="checkout-form">
+                    <!-- Contact Information Section -->
+                    <div class="checkout-form-section">
+                        <h3 class="checkout-section-title">Kontaktné informácie</h3>
+                        
+                        @if(!Auth::check())
+                            <div class="checkout-account-options">
+                                <span>Máte účet?</span>
+                                <a href="{{ route('login') }}">Prihlásiť sa</a>
+                            </div>
+                        @endif
 
-                    <form class="checkout-form">
                         <!-- Contact Fields -->
                         <div class="checkout-form-group">
                             <input type="email" class="checkout-form-control" id="email" placeholder="Email" 
-                                value="{{ Auth::check() ? Auth::user()->email : '' }}" required />
+                                value="{{ $cart->email ?? (Auth::check() ? Auth::user()->email : '') }}" required />
+                            <div class="invalid-feedback">Zadajte platný email.</div>
                         </div>
                         <div class="checkout-form-group">
                             <input type="tel" class="checkout-form-control" id="phone" placeholder="Telefónne číslo" 
-                                value="{{ Auth::check() && Auth::user()->phone ? Auth::user()->phone : '' }}" required />
+                                value="{{ $cart->phone ?? (Auth::check() && Auth::user()->phone ? Auth::user()->phone : '') }}" required />
+                            <div class="invalid-feedback">Zadajte telefónne číslo.</div>
                         </div>
 
                         <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="newsletter" />
+                            <input class="form-check-input" type="checkbox" id="newsletter" {{ $cart->newsletter ? 'checked' : '' }} />
                             <label class="form-check-label" for="newsletter"> Zasielajte mi e-mail s novinkami a ponukami <span class="checkout-optional-label">(voliteľné)</span> </label>
                         </div>
-                    </form>
-                </div>
+                    </div>
 
-                <!-- Shipping Section -->
-                <div class="checkout-form-section">
-                    <h3 class="checkout-section-title">Adresa pre doručenie</h3>
+                    <!-- Shipping Section -->
+                    <div class="checkout-form-section">
+                        <h3 class="checkout-section-title">Adresa pre doručenie</h3>
 
-                    @if(Auth::check() && Auth::user()->addresses->count() > 0)
+                        @if(Auth::check() && Auth::user()->addresses->count() > 0)
+                            <div class="checkout-form-group">
+                                <label for="saved-addresses">Uložené adresy</label>
+                                <select class="checkout-form-control" id="saved-addresses" onchange="fillAddressForm(this.value)">
+                                    <option value="">Vyberte adresu...</option>
+                                    @foreach(Auth::user()->addresses as $address)
+                                        <option value="{{ $address->address_id }}" 
+                                            data-first-name="{{ Auth::user()->first_name }}"
+                                            data-last-name="{{ Auth::user()->last_name }}"
+                                            data-address="{{ $address->address_line1 }}"
+                                            data-address2="{{ $address->address_line2 }}"
+                                            data-city="{{ $address->city }}"
+                                            data-postal="{{ $address->postal_code }}"
+                                            data-country="{{ $address->country }}"
+                                            {{ $address->is_default ? 'selected' : '' }}>
+                                            {{ $address->address_line1 }}, {{ $address->city }}, {{ $address->country }} {{ $address->is_default ? '(predvolená)' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="checkout-form-group">
+                                    <input type="text" class="checkout-form-control" id="firstName" placeholder="Meno" 
+                                        value="{{ $cart->first_name ?? (Auth::check() ? Auth::user()->first_name : '') }}" required />
+                                    <div class="invalid-feedback">Zadajte meno.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="checkout-form-group">
+                                    <input type="text" class="checkout-form-control" id="lastName" placeholder="Priezvisko" 
+                                        value="{{ $cart->last_name ?? (Auth::check() ? Auth::user()->last_name : '') }}" required />
+                                    <div class="invalid-feedback">Zadajte priezvisko.</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="checkout-form-group">
-                            <label for="saved-addresses">Uložené adresy</label>
-                            <select class="checkout-form-control" id="saved-addresses" onchange="fillAddressForm(this.value)">
-                                <option value="">Vyberte adresu...</option>
-                                @foreach(Auth::user()->addresses as $address)
-                                    <option value="{{ $address->address_id }}" 
-                                        data-first-name="{{ Auth::user()->first_name }}"
-                                        data-last-name="{{ Auth::user()->last_name }}"
-                                        data-address="{{ $address->address_line1 }}"
-                                        data-address2="{{ $address->address_line2 }}"
-                                        data-city="{{ $address->city }}"
-                                        data-postal="{{ $address->postal_code }}"
-                                        data-country="{{ $address->country }}"
-                                        {{ $address->is_default ? 'selected' : '' }}>
-                                        {{ $address->address_line1 }}, {{ $address->city }}, {{ $address->country }} {{ $address->is_default ? '(predvolená)' : '' }}
+                            <input type="text" class="checkout-form-control" id="address" placeholder="Adresa" 
+                                value="{{ $cart->address_line1 ?? (Auth::check() && Auth::user()->defaultAddress() ? Auth::user()->defaultAddress()->address_line1 : '') }}" required />
+                            <div class="invalid-feedback">Zadajte adresu pre doručenie.</div>
+                        </div>
+
+                        <div class="checkout-form-group">
+                            <input type="text" class="checkout-form-control" id="address2" placeholder="Byt, poschodie, atď. (voliteľné)" 
+                                value="{{ $cart->address_line2 ?? (Auth::check() && Auth::user()->defaultAddress() && Auth::user()->defaultAddress()->address_line2 ? Auth::user()->defaultAddress()->address_line2 : '') }}" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="checkout-form-group">
+                                    <input type="text" class="checkout-form-control" id="city" placeholder="Mesto" 
+                                        value="{{ $cart->city ?? (Auth::check() && Auth::user()->defaultAddress() ? Auth::user()->defaultAddress()->city : '') }}" required />
+                                    <div class="invalid-feedback">Zadajte mesto.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="checkout-form-group">
+                                    <input type="text" class="checkout-form-control" id="postal" placeholder="PSČ" 
+                                        value="{{ $cart->postal_code ?? (Auth::check() && Auth::user()->defaultAddress() ? Auth::user()->defaultAddress()->postal_code : '') }}" required />
+                                    <div class="invalid-feedback">Zadajte PSČ.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkout-form-group">
+                            <select class="checkout-form-control" id="country" required>
+                                <option value="" disabled {{ (!$cart->country && (!Auth::check() || !Auth::user()->defaultAddress())) ? 'selected' : '' }}>Vyberte krajinu</option>
+                                @foreach($countries as $country)
+                                    <option value="{{ $country->code }}" 
+                                        {{ ($cart->country == $country->code) || (Auth::check() && Auth::user()->defaultAddress() && Auth::user()->defaultAddress()->country == $country->name) ? 'selected' : '' }}>
+                                        {{ $country->name }}
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-                    @endif
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="checkout-form-group">
-                                <input type="text" class="checkout-form-control" id="firstName" placeholder="Meno" 
-                                    value="{{ Auth::check() ? Auth::user()->first_name : '' }}" required />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="checkout-form-group">
-                                <input type="text" class="checkout-form-control" id="lastName" placeholder="Priezvisko" 
-                                    value="{{ Auth::check() ? Auth::user()->last_name : '' }}" required />
-                            </div>
+                            <div class="invalid-feedback">Vyberte krajinu.</div>
                         </div>
                     </div>
 
-                    <div class="checkout-form-group">
-                        <input type="text" class="checkout-form-control" id="address" placeholder="Adresa" 
-                            value="{{ Auth::check() && Auth::user()->defaultAddress() ? Auth::user()->defaultAddress()->address_line1 : '' }}" required />
-                    </div>
+                    <!-- Shipping Methods Section -->
+                    <div class="checkout-form-section" id="shipping-methods-section" style="display: none;">
+                        <h3 class="checkout-section-title">Spôsob doručenia</h3>
 
-                    <div class="checkout-form-group">
-                        <input type="text" class="checkout-form-control" id="address2" placeholder="Byt, poschodie, atď. (voliteľné)" 
-                            value="{{ Auth::check() && Auth::user()->defaultAddress() && Auth::user()->defaultAddress()->address_line2 ? Auth::user()->defaultAddress()->address_line2 : '' }}" />
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="checkout-form-group">
-                                <input type="text" class="checkout-form-control" id="city" placeholder="Mesto" 
-                                    value="{{ Auth::check() && Auth::user()->defaultAddress() ? Auth::user()->defaultAddress()->city : '' }}" required />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="checkout-form-group">
-                                <input type="text" class="checkout-form-control" id="postal" placeholder="PSČ" 
-                                    value="{{ Auth::check() && Auth::user()->defaultAddress() ? Auth::user()->defaultAddress()->postal_code : '' }}" required />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="checkout-form-group">
-                        <select class="checkout-form-control" id="country" required>
-                            <option value="" disabled {{ Auth::check() && Auth::user()->defaultAddress() ? '' : 'selected' }}>Vyberte krajinu</option>
-                            @foreach($countries as $country)
-                                <option value="{{ $country->code }}" 
-                                    {{ Auth::check() && Auth::user()->defaultAddress() && Auth::user()->defaultAddress()->country == $country->name ? 'selected' : '' }}>
-                                    {{ $country->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Shipping Methods Section -->
-                <div class="checkout-form-section" id="shipping-methods-section" style="display: none;">
-                    <h3 class="checkout-section-title">Spôsob doručenia</h3>
-
-                    <div class="checkout-shipping-options" id="shipping-options-container">
-                        @if(count($countries) > 0)
-                            @foreach($countries as $country)
-                                <div class="country-shipping-methods" data-country="{{ $country->code }}" style="display: none;">
-                                    @foreach($country->shippingProviders as $provider)
-                                        <div class="checkout-shipping-option">
-                                            <div class="form-check">
-                                                <input class="form-check-input shipping-method-radio" 
-                                                    type="radio" 
-                                                    name="shippingMethod" 
-                                                    id="shipping-provider-{{ $provider->provider_id }}" 
-                                                    value="{{ $provider->provider_id }}"
-                                                    data-price="{{ $provider->price }}"
-                                                    {{ $loop->first ? 'checked' : '' }} />
-                                                <label class="form-check-label d-flex justify-content-between w-100" 
-                                                    for="shipping-provider-{{ $provider->provider_id }}">
-                                                    <span>{{ $provider->name }}</span>
-                                                    <span>{{ number_format($provider->price, 2, ',', ' ') }} €</span>
-                                                </label>
+                        <div class="checkout-shipping-options" id="shipping-options-container">
+                            @if(count($countries) > 0)
+                                @foreach($countries as $country)
+                                    <div class="country-shipping-methods" data-country="{{ $country->code }}" style="display: none;">
+                                        @foreach($country->shippingProviders as $provider)
+                                            <div class="checkout-shipping-option">
+                                                <div class="form-check">
+                                                    <input class="form-check-input shipping-method-radio" 
+                                                        type="radio" 
+                                                        name="shippingMethod" 
+                                                        id="shipping-provider-{{ $provider->provider_id }}" 
+                                                        value="{{ $provider->provider_id }}"
+                                                        data-price="{{ $provider->price }}"
+                                                        {{ ($cart->shipping_provider_id == $provider->provider_id) || 
+                                                           ($loop->first && !$cart->shipping_provider_id) ? 'checked' : '' }} />
+                                                    <label class="form-check-label d-flex justify-content-between w-100" 
+                                                        for="shipping-provider-{{ $provider->provider_id }}">
+                                                        <span>{{ $provider->name }}</span>
+                                                        <span>{{ number_format($provider->price, 2, ',', ' ') }} €</span>
+                                                    </label>
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="alert alert-warning">
+                                    Momentálne nie sú k dispozícii žiadne spôsoby dopravy. Prosím, kontaktujte nás.
                                 </div>
-                            @endforeach
-                        @else
-                            <div class="alert alert-warning">
-                                Momentálne nie sú k dispozícii žiadne spôsoby dopravy. Prosím, kontaktujte nás.
-                            </div>
-                        @endif
+                            @endif
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
 
             <!-- Cart Summary - Right Column -->
@@ -208,7 +219,7 @@
                         <div>Celkom:</div>
                         <div>{{ number_format($total, 2, ',', ' ') }} €</div>
                     </div>
-                    <a href="#" class="checkout-proceed-btn">Pokračovať na platbu</a>
+                    <button id="proceedToPaymentBtn" class="checkout-proceed-btn">Pokračovať na platbu</button>
                 </div>
             </div>
         </div>
@@ -232,6 +243,20 @@
         border: 1px solid #ccc;
         margin-bottom: 15px;
         width: 100%;
+    }
+    .checkout-form-control.is-invalid {
+        border-color: #dc3545;
+    }
+    .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: -12px;
+        margin-bottom: 10px;
+        font-size: 80%;
+        color: #dc3545;
+    }
+    .checkout-form-control.is-invalid + .invalid-feedback {
+        display: block;
     }
     .checkout-optional-label {
         color: #6c757d;
@@ -276,6 +301,10 @@
     .checkout-proceed-btn:hover {
         background-color: #45a049;
         color: white;
+    }
+    .checkout-proceed-btn.disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
     }
     .checkout-section-title {
         font-size: 18px;
@@ -331,6 +360,18 @@
             countrySelect.addEventListener('change', updateShippingOptions);
             // Initialize with the current country selection
             updateShippingOptions();
+            
+            // After updating shipping options, if there's a previously selected shipping method, select it
+            var savedShippingMethodId = {{ $cart->shipping_provider_id ?? 'null' }};
+            if (savedShippingMethodId) {
+                setTimeout(function() {
+                    var savedShippingInput = document.querySelector('input[name="shippingMethod"][value="' + savedShippingMethodId + '"]');
+                    if (savedShippingInput) {
+                        savedShippingInput.checked = true;
+                        updateShippingCost();
+                    }
+                }, 100); // Small timeout to ensure shipping options are loaded
+            }
         }
         
         // Set up event listeners for shipping method selection
@@ -340,7 +381,99 @@
 
         // Initial update of shipping cost based on the selected method
         updateShippingCost();
+
+        // Add validation and navigation to payment page
+        const proceedToPaymentBtn = document.getElementById('proceedToPaymentBtn');
+        proceedToPaymentBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (validateCheckoutForm()) {
+                // Store form data in session
+                const formData = new FormData();
+                formData.append('email', document.getElementById('email').value);
+                formData.append('phone', document.getElementById('phone').value);
+                formData.append('firstName', document.getElementById('firstName').value);
+                formData.append('lastName', document.getElementById('lastName').value);
+                formData.append('address', document.getElementById('address').value);
+                formData.append('address2', document.getElementById('address2').value);
+                formData.append('city', document.getElementById('city').value);
+                formData.append('postal', document.getElementById('postal').value);
+                formData.append('country', document.getElementById('country').value);
+                
+                const selectedShippingMethod = document.querySelector('input[name="shippingMethod"]:checked');
+                if (selectedShippingMethod) {
+                    formData.append('shippingMethod', selectedShippingMethod.value);
+                }
+                
+                formData.append('_token', '{{ csrf_token() }}');
+
+                // Send form data to server using fetch
+                fetch('{{ route('cart.storeCheckout') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Navigate to payment page
+                        window.location.href = '{{ route('cart.payment') }}';
+                    } else {
+                        // Show error message
+                        alert(data.message || 'Vyskytla sa chyba. Skontrolujte formulár a skúste znova.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Vyskytla sa chyba pri spracovaní požiadavky.');
+                });
+            }
+        });
     });
+
+    function validateCheckoutForm() {
+        let isValid = true;
+        const requiredFields = [
+            'email', 'phone', 'firstName', 'lastName', 
+            'address', 'city', 'postal', 'country'
+        ];
+        
+        // Reset validation
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            field.classList.remove('is-invalid');
+        });
+        
+        // Check each required field
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+        
+        // Validate email format
+        const emailField = document.getElementById('email');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailField.value.trim())) {
+            emailField.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Validate shipping method selection
+        const shippingMethodsSection = document.getElementById('shipping-methods-section');
+        if (shippingMethodsSection.style.display !== 'none') {
+            const selectedShippingMethod = document.querySelector('input[name="shippingMethod"]:checked');
+            if (!selectedShippingMethod) {
+                isValid = false;
+                alert('Prosím, vyberte spôsob dopravy.');
+            }
+        }
+        
+        return isValid;
+    }
 
     function updateShippingOptions() {
         var countrySelect = document.getElementById('country');

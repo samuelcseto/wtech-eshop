@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 class CartController extends Controller
@@ -236,7 +239,7 @@ class CartController extends Controller
     }
     
     /**
-     * Show the checkout page (second cart step)
+     * Show the checkout page (first cart step)
      */
     public function checkout()
     {
@@ -288,6 +291,289 @@ class CartController extends Controller
             'cart_total', 
             'countries'
         ));
+    }
+
+    /**
+     * Store checkout form data in cart and validate
+     */
+    public function storeCheckout(Request $request)
+    {
+        // Simple validation for required fields
+        $validator = validator($request->all(), [
+            'email' => 'required|email',
+            'phone' => 'required',
+            'firstName' => 'required',
+            'lastName' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'postal' => 'required',
+            'country' => 'required',
+            'shippingMethod' => 'required',
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Prosím, vyplňte všetky povinné polia.'
+            ]);
+        }
+
+        // Get cart and store form data directly in the cart
+        $cart = $this->getCart();
+        
+        try {
+            // Update cart with checkout data
+            $cart->update([
+                'email' => $request->input('email'),
+                'phone' => $request->input('phone'),
+                'newsletter' => $request->has('newsletter'),
+                'first_name' => $request->input('firstName'),
+                'last_name' => $request->input('lastName'),
+                'address_line1' => $request->input('address'),
+                'address_line2' => $request->input('address2'),
+                'city' => $request->input('city'),
+                'postal_code' => $request->input('postal'),
+                'country' => $request->input('country'),
+                'shipping_provider_id' => $request->input('shippingMethod'),
+            ]);
+            
+            // Keep the session for backward compatibility
+            Session::put('checkout.contact', [
+                'email' => $request->input('email'),
+                'phone' => $request->input('phone'),
+                'newsletter' => $request->has('newsletter'),
+            ]);
+
+            Session::put('checkout.shipping', [
+                'firstName' => $request->input('firstName'),
+                'lastName' => $request->input('lastName'),
+                'address' => $request->input('address'),
+                'address2' => $request->input('address2'),
+                'city' => $request->input('city'),
+                'postal' => $request->input('postal'),
+                'country' => $request->input('country'),
+            ]);
+
+            Session::put('checkout.shippingMethod', $request->input('shippingMethod'));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Údaje úspešne uložené.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vyskytla sa chyba pri ukladaní údajov.'
+            ]);
+        }
+    }
+
+    /**
+     * Show the payment page (second cart step)
+     */
+    public function payment()
+    {
+        $cart = $this->getCart();
+        
+        // Check if cart has items
+        if ($cart->items->count() === 0) {
+            return redirect()->route('cart.show')
+                ->with('error', 'Váš košík je prázdny. Najskôr pridajte produkty.');
+        }
+
+        // Check if checkout data has been filled
+        if (!$cart->email || !$cart->phone || !$cart->first_name || !$cart->shipping_provider_id) {
+            return redirect()->route('cart.checkout')
+                ->with('error', 'Najprv musíte vyplniť kontaktné a doručovacie údaje.');
+        }
+        
+        // Eager load cart items with their products
+        $cart->load(['items.product.primaryImage', 'shippingProvider']);
+        
+        // Calculate totals
+        $subtotal = $cart->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+        
+        // Get the shipping cost from the shipping provider
+        $shipping = $cart->shippingProvider ? $cart->shippingProvider->price : 2.49; // Default if not found
+        
+        $total = $subtotal + $shipping;
+        
+        // Get active countries for billing form
+        $countries = \App\Models\Country::where('is_active', true)->get();
+        
+        return view('cart.payment', compact(
+            'cart', 
+            'subtotal', 
+            'shipping', 
+            'total',
+            'countries'
+        ));
+    }
+
+    /**
+     * Process payment and complete order
+     */
+    public function processPayment(Request $request)
+    {
+        // Validate based on selected payment method
+        $validator = validator($request->all(), [
+            'payment_method' => 'required|in:CARD,COD,WIRE',
+        ]);
+
+        // Add validation rules for card payment
+        if ($request->input('payment_method') === 'CARD') {
+            $validator = validator($request->all(), [
+                'payment_method' => 'required',
+                'card_number' => 'required|digits:16',
+                'expiry_month' => 'required|numeric|between:1,12',
+                'expiry_year' => 'required|numeric|between:23,99',
+                'security_code' => 'required|digits:3'
+            ]);
+        }
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $cart = $this->getCart();
+        
+        // Check if cart has items
+        if ($cart->items->count() === 0) {
+            return redirect()->route('cart.show')
+                ->with('error', 'Váš košík je prázdny. Najskôr pridajte produkty.');
+        }
+
+        // Check if checkout data is present in the cart
+        if (!$cart->email || !$cart->phone || !$cart->first_name || !$cart->shipping_provider_id) {
+            return redirect()->route('cart.checkout')
+                ->with('error', 'Chýbajú údaje objednávky. Prosím, vyplňte všetky požadované údaje.');
+        }
+
+        // Update cart with payment method
+        $cart->payment_method = $request->input('payment_method');
+        $cart->save();
+
+        // Calculate totals
+        $cart->load(['items.product', 'shippingProvider']);
+        $subtotal = $cart->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        // Get shipping cost directly from the shipping provider stored in cart
+        $shippingCost = 0;
+        if ($cart->shippingProvider) {
+            $shippingCost = $cart->shippingProvider->price;
+        }
+        
+        // Calculate total
+        $totalAmount = $subtotal + $shippingCost;
+
+        // Add COD fee if applicable
+        if ($request->input('payment_method') === 'COD') {
+            $codFee = 1.50;
+            $totalAmount += $codFee;
+        }
+
+        DB::beginTransaction();
+        try {
+            // Create the order
+            $order = Order::create([
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'email' => $cart->email,
+                'phone' => $cart->phone,
+                'first_name' => $cart->first_name,
+                'last_name' => $cart->last_name,
+                'address_line1' => $cart->address_line1,
+                'address_line2' => $cart->address_line2,
+                'city' => $cart->city,
+                'postal_code' => $cart->postal_code,
+                'country' => $cart->country,
+                'shipping_provider_id' => $cart->shipping_provider_id,
+                'shipping_cost' => $shippingCost,
+                'payment_method' => $request->input('payment_method'), // This will now be uppercase from validation
+                'payment_status' => $request->input('payment_method') === 'COD' ? 'pending' : 'paid',
+                'status' => 'new',
+                'total_amount' => $totalAmount,
+            ]);
+
+            // Add order items
+            foreach ($cart->items as $cartItem) {
+                OrderItem::create([
+                    'order_id' => $order->order_id,
+                    'product_id' => $cartItem->product_id,
+                    'price' => $cartItem->price,
+                    'quantity' => $cartItem->quantity
+                ]);
+                
+                // Decrease product stock quantity
+                $product = $cartItem->product;
+                $product->stock_quantity -= $cartItem->quantity;
+                $product->save();
+            }
+
+            // Clear cart
+            $cart->items()->delete();
+            
+            // Clear checkout data in cart but keep the cart itself
+            $cart->update([
+                'email' => null,
+                'phone' => null,
+                'newsletter' => null,
+                'first_name' => null,
+                'last_name' => null,
+                'address_line1' => null,
+                'address_line2' => null,
+                'city' => null,
+                'postal_code' => null,
+                'country' => null,
+                'shipping_provider_id' => null,
+                'payment_method' => null,
+            ]);
+            
+            // Clear checkout session data
+            Session::forget('checkout');
+            
+            // Store order ID in session for retrieval on success page
+            Session::put('order_id', $order->order_id);
+            
+            DB::commit();
+            
+            // In a real application, you would send an order confirmation email here
+            
+            return redirect()->route('cart.success')->with('success', 'Vaša objednávka bola úspešne vytvorená!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Vyskytla sa chyba pri spracovaní vašej objednávky. Prosím, skúste znova. ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show order success page
+     */
+    public function success()
+    {
+        // If there's a success message with an order ID, get the order
+        if (session()->has('order_id')) {
+            $order = Order::with('shippingProvider')->find(session('order_id'));
+            return view('cart.success', compact('order'));
+        }
+        
+        // Otherwise, if the user is logged in, get their most recent order
+        if (Auth::check()) {
+            $order = Order::with('shippingProvider')
+                ->where('user_id', Auth::id())
+                ->latest()
+                ->first();
+            
+            return view('cart.success', compact('order'));
+        }
+        
+        // Default view if no order information is available
+        return view('cart.success');
     }
     
     /**
