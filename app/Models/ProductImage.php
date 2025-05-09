@@ -12,6 +12,9 @@ class ProductImage extends Model
     protected $fillable = [
         'product_id', 'image_url', 'is_primary', 'sort_order', 'alt_text'
     ];
+    
+    protected $primaryKey = 'image_id';
+    public $incrementing = true;
 
     public function product()
     {

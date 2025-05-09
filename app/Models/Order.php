@@ -51,6 +51,6 @@ class Order extends Model
      */
     public function shippingProvider()
     {
-        return $this->belongsTo(ShippingProvider::class);
+        return $this->belongsTo(ShippingProvider::class, 'shipping_provider_id', 'provider_id');
     }
 }

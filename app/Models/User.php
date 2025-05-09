@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -97,5 +98,15 @@ class User extends Authenticatable
     public function activeCart()
     {
         return $this->hasOne(Cart::class)->latest();
+    }
+    
+    /**
+     * Check if the user is an administrator.
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return (bool) $this->is_admin;
     }
 }

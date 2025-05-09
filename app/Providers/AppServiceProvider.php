@@ -22,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Configure Pagination to use Bootstrap
+        \Illuminate\Pagination\Paginator::useBootstrap();
+        
         // Add cart data to all views
         View::composer('*', function ($view) {
             if (Auth::check()) {

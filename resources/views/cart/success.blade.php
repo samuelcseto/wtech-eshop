@@ -91,7 +91,7 @@
         <div class="success-buttons">
             <a href="{{ route('home') }}" class="success-button">Späť na domovskú stránku</a>
             @if(Auth::check())
-                <a href="{{ route('profile.orders') }}" class="success-button primary">Moje objednávky</a>
+                <a href="{{ route('orders.index') }}" class="success-button primary">Moje objednávky</a>
             @endif
         </div>
     </div>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -53,4 +54,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/address/{id}', [ProfileController::class, 'updateAddress'])->name('profile.address.update');
     Route::put('/profile/address/{id}/default', [ProfileController::class, 'setDefaultAddress'])->name('profile.address.default');
     Route::delete('/profile/address/{id}', [ProfileController::class, 'deleteAddress'])->name('profile.address.delete');
+    
+    // Order routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    
+    // Admin routes
+    Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+        // Product management
+        Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
+        Route::delete('/products/{product}/images/{image}', [\App\Http\Controllers\Admin\ProductController::class, 'deleteImage'])->name('products.deleteImage');
+    });
 });

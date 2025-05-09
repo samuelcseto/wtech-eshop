@@ -465,8 +465,20 @@ class CartController extends Controller
 
         // Get shipping cost directly from the shipping provider stored in cart
         $shippingCost = 0;
+        $shippingProviderId = $cart->shipping_provider_id;
+        
         if ($cart->shippingProvider) {
             $shippingCost = $cart->shippingProvider->price;
+        } else {
+            // Try to get shipping provider from session as fallback
+            $sessionShippingMethodId = Session::get('checkout.shippingMethod');
+            if ($sessionShippingMethodId) {
+                $shippingProviderId = $sessionShippingMethodId;
+                $shippingProvider = \App\Models\ShippingProvider::find($sessionShippingMethodId);
+                if ($shippingProvider) {
+                    $shippingCost = $shippingProvider->price;
+                }
+            }
         }
         
         // Calculate total
@@ -492,7 +504,7 @@ class CartController extends Controller
                 'city' => $cart->city,
                 'postal_code' => $cart->postal_code,
                 'country' => $cart->country,
-                'shipping_provider_id' => $cart->shipping_provider_id,
+                'shipping_provider_id' => $shippingProviderId,
                 'shipping_cost' => $shippingCost,
                 'payment_method' => $request->input('payment_method'), // This will now be uppercase from validation
                 'payment_status' => $request->input('payment_method') === 'COD' ? 'pending' : 'paid',
