@@ -170,3 +170,7 @@ Hlavným cieľom zmien bolo umožniť komplexnejšiu funkcionalitu e-shopu, vrá
 
 -   Nákupný košík s vloženým produktom (`resources/views/cart/show.blade.php`)
     X
+
+## Vývojárska príručka
+
+Pre informácie o nastavení a spustení vývojového prostredia navštívte [Vývojársku príručku](./docs/VYVOJARSKA_PRIRUCKA.md).
