@@ -211,7 +211,7 @@
                                     <div class="orders-page-product-item">
                                         <div class="orders-page-product-image">
                                             @if($item->product->images->isNotEmpty())
-                                                <img src="{{ asset($item->product->images->first()->image_path) }}" alt="{{ $item->product->name }}">
+                                                <img src="{{ asset($item->product->images->first()->image_url) }}" alt="{{ $item->product->name }}">
                                             @else
                                                 <div class="no-image">Bez obrázku</div>
                                             @endif
@@ -247,6 +247,37 @@
                                 <div class="orders-page-summary-row total">
                                     <div>Celkom:</div>
                                     <div>{{ number_format($orders->first()->total_amount, 2, ',', ' ') }} €</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Shipping and payment information -->
+                            <div class="orders-page-detail-section">
+                                <h3>Informácie o doručení a platbe</h3>
+                                <div>
+                                    <p><strong>Spôsob dopravy:</strong> 
+                                        @if($orders->first()->shippingProvider)
+                                            {{ $orders->first()->shippingProvider->name }}
+                                        @else
+                                            Neuvedené
+                                        @endif
+                                    </p>
+                                    <p><strong>Spôsob platby:</strong> 
+                                        @switch($orders->first()->payment_method)
+                                            @case('CARD')
+                                                Platba kartou
+                                                @break
+                                            @case('COD')
+                                                Dobierka
+                                                @break
+                                            @case('WIRE')
+                                                Bankový prevod
+                                                @break
+                                            @default
+                                                {{ $orders->first()->payment_method }}
+                                        @endswitch
+                                    </p>
+                                    <p><strong>Adresa doručenia:</strong> {{ $orders->first()->address_line1 }}{{ $orders->first()->address_line2 ? ', '.$orders->first()->address_line2 : '' }}, {{ $orders->first()->postal_code }} {{ $orders->first()->city }}, {{ $orders->first()->country }}</p>
+                                    <p><strong>Kontakt:</strong> {{ $orders->first()->first_name }} {{ $orders->first()->last_name }}, {{ $orders->first()->phone }}, {{ $orders->first()->email }}</p>
                                 </div>
                             </div>
                         </div>
