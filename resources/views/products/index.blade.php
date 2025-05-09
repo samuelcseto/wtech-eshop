@@ -1,12 +1,18 @@
 @extends('layouts.app')
 
-@section('title', isset($categoryName) ? $categoryName . ' - Domáce Dekorácie' : 'Katalóg produktov - Domáce Dekorácie')
+@section('title', isset($categoryName) ? $categoryName . ' - Domáce Dekorácie' : (request('search') ? 'Výsledky vyhľadávania: ' . request('search') . ' - Domáce Dekorácie' : 'Katalóg produktov - Domáce Dekorácie'))
 
 @section('content')
 <!-- Products Section -->
 <section class="products-page-container">
     <div class="container">
-        <h1 class="products-page-title">{{ isset($categoryName) ? $categoryName : 'Katalóg produktov' }}</h1>
+        <h1 class="products-page-title">
+            @if(request('search'))
+                Výsledky vyhľadávania: "{{ request('search') }}"
+            @else
+                {{ isset($categoryName) ? $categoryName : 'Katalóg produktov' }}
+            @endif
+        </h1>
 
         <!-- Mobile search - visible only on mobile -->
         <div class="products-page-mobile-search">
@@ -23,6 +29,12 @@
                 @endif
                 @if(request('in_stock'))
                     <input type="hidden" name="in_stock" value="{{ request('in_stock') }}">
+                @endif
+                @if(request('price_from'))
+                    <input type="hidden" name="price_from" value="{{ request('price_from') }}">
+                @endif
+                @if(request('price_to'))
+                    <input type="hidden" name="price_to" value="{{ request('price_to') }}">
                 @endif
                 @if(request('sort'))
                     <input type="hidden" name="sort" value="{{ request('sort') }}">
