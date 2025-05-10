@@ -7,7 +7,7 @@
             <div class="orders-page-product-item">
                 <div class="orders-page-product-image">
                     @if($item->product->images->isNotEmpty())
-                        <img src="{{ asset($item->product->images->first()->image_path) }}" alt="{{ $item->product->name }}">
+                        <img src="{{ asset($item->product->images->first()->image_url) }}" alt="{{ $item->product->name }}">
                     @else
                         <div class="no-image">Bez obrázku</div>
                     @endif

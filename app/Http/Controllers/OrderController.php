@@ -17,7 +17,7 @@ class OrderController extends Controller
     {
         $orders = Order::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->with(['items.product', 'shippingProvider'])
+            ->with(['items.product.images', 'shippingProvider'])
             ->get();
         
         return view('orders.index', compact('orders'));
@@ -33,7 +33,7 @@ class OrderController extends Controller
     {
         $order = Order::where('order_id', $id)
             ->where('user_id', Auth::id())
-            ->with(['items.product', 'shippingProvider'])
+            ->with(['items.product.images', 'shippingProvider'])
             ->firstOrFail();
         
         return view('orders.show', compact('order'));
