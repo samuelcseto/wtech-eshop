@@ -160,16 +160,21 @@ Hlavným cieľom zmien bolo umožniť komplexnejšiu funkcionalitu e-shopu, vrá
 ## Snímky obrazoviek
 
 -   Detail produktu (`resources/views/products/show.blade.php`)
-    X
+    ![PRD](/screenshots/product-details.png)
 
 -   Prihlásenie (`resources/views/auth/login.blade.php`)
-    X
+    ![LGN](/screenshots/login.png)
 
 -   Homepage (`resources/views/landing.blade.php`)
-    X
+    ![HMPG](/screenshots/home-page-1.png)
+    ![HMPG](/screenshots/home-page-2.png)
+    ![HMPG](/screenshots/home-page-3.png)
+    ![HMPG](/screenshots/home-page-4.png)
+    ![HMPG](/screenshots/home-page-5.png)
 
 -   Nákupný košík s vloženým produktom (`resources/views/cart/show.blade.php`)
-    X
+    ![CIC](/screenshots/cart-item-compact.png)
+    ![CI](/screenshots/cart-item.png)
 
 ## Vývojárska príručka
 
